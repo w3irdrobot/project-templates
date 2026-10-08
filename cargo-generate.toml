@@ -1,2 +1,2 @@
 [template]
-sub_templates = ["rust/cli"]
+sub_templates = ["rust/cli", "rust/workspace"]

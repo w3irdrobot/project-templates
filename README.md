@@ -75,6 +75,36 @@ template revision; dependency resolution and formatter output can change over
 time. Commit the generated application's `Cargo.lock` after its first build.
 Use cargo-generate's `--revision` or `--tag` to select a specific template release.
 
+### `rust/workspace`
+
+A two-crate, edition-2024 workspace with resolver 3:
+
+- `crates/app` (package `<project>`) is a CLI with a thin `main.rs`, arguments in `cli.rs`,
+  `anyhow`, and environment-filtered `tracing`.
+- `crates/core` (package `<project>-core`) is a reusable library with exports in `lib.rs`,
+  behavior in `greeting.rs`, and typed `thiserror` errors.
+- Package metadata and dependencies are shared through the workspace manifest.
+- Tokio defaults on for the application; `async=false` omits it entirely.
+- `just` checks and builds every workspace crate; `run` selects the application.
+
+The example rejects blank names to demonstrate a library error reaching the
+application boundary. Rename or split the core crate by responsibility as the
+project grows; the starter does not require publishing it.
+
+```bash
+cargo generate \
+  --git git@github.com:w3irdrobot/project-templates.git \
+  rust/workspace \
+  --name my-project \
+  --define async=true \
+  --silent \
+  --no-workspace
+```
+
+For local template development, use `--path rust/workspace` instead of the Git
+source and positional template path. `--no-workspace` prevents generation from
+adding the new project to a parent Cargo workspace.
+
 ## Work on templates
 
 Generate directly from the local checkout while making changes:
@@ -87,7 +117,8 @@ cargo generate \
   --silent
 ```
 
-Run `just verify` to generate both CLI variants in a temporary directory, check
+Run `just verify` to generate async and synchronous variants of both templates in
+a temporary directory, check
 formatting, run Clippy and tests, build release binaries, and exercise CLI
 arguments and environment logging. Generated projects are removed afterward.
 
@@ -98,5 +129,7 @@ To add another template:
 2. Add that path to the root `sub_templates` list.
 3. Document its inputs and add generation/validation coverage.
 
-Only files named in a template's `include` list undergo Liquid expansion. Other
-files are copied unchanged, keeping Just syntax separate from template syntax.
+Only files matched by a template's `include` list undergo Liquid expansion.
+Other files are copied unchanged. The workspace's `justfile` is included to
+select the generated application package; keep its Just syntax compatible with
+Liquid expansion.

@@ -1,0 +1,12 @@
+[template]
+cargo_generate_version = ">=0.23.0"
+include = [
+    "Cargo.toml",
+    "README.md",
+    "justfile",
+    "crates/**/Cargo.toml",
+    "crates/**/src/main.rs",
+]
+
+[placeholders]
+async = { type = "bool", prompt = "Use Tokio for async execution?", default = true }

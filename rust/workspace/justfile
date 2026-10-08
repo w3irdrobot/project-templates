@@ -1,0 +1,36 @@
+set shell := ["bash", "-cu"]
+set positional-arguments
+
+_default:
+    just --list
+
+# Format every crate with nightly's import-grouping support.
+fmt:
+    @cargo +nightly fmt --all
+
+# Check formatting without changing files.
+fmt-check:
+    @cargo +nightly fmt --all -- --check
+
+# Type-check every workspace target and feature.
+check:
+    @cargo check --workspace --all-targets --all-features
+
+# Run Clippy for every crate and fail on warnings.
+lint:
+    @cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+# Run workspace tests, including documentation tests.
+test:
+    @cargo test --workspace --all-features
+
+# Build every workspace crate in release mode.
+build:
+    @cargo build --workspace --release
+
+# Run the application; forward arguments as separate shell arguments.
+run *args:
+    @cargo run --package {{project-name}} -- "$@"
+
+# Run all development checks.
+verify: fmt-check check lint test
